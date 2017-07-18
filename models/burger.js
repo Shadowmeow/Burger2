@@ -1,21 +1,29 @@
-var orm = require("../config/orm.js");
-
-var burger = {
-	selectAll: function(cb) {
-		orm.selectAll("burgers", function(res) {
-			cb(res);
-		});
+module.exports = function(sequelize, DataTypes) {
+	var Burgers = sequelize.define("Burgers", {
+		burger_name: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		devoured: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+		},
+		date: {
+			type: DataTypes.DATE,
+			defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+		}
 	},
-	insert: function(cols, vals, cb) {
-		orm.insertOne("burgers", cols, vals, function(res) {
-			cb(res);
-		});
-	},
-	update: function(objColVals, condition, cb) {
-		orm.updateOne("burgers", objColVals, condition, function(res) {
-			cb(res);
-		});
-	}
-};
-
-module.exports = burger;
+		{
+		classMethods: {
+			associate: function(models){
+				Burgers.hasOne(models.Eater, {
+					onDelete: "Cascade",
+					foreignKey: {
+						allowNull: true
+					}
+				});
+			}
+		}
+	});
+ 	return Burgers;
+}
